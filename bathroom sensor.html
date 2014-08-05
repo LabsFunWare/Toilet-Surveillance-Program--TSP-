@@ -1,0 +1,116 @@
+<html>
+    <head>
+        <title>Electric Imp Breakout</title>
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
+        <script>
+            $( function() {
+              // Edit these values first! The externalURL variable should be the
+              // unique URL of your agent. e.g. the last part of:
+              // https://agent.electricimp.com/rql2vy22AV8X
+              // pollRate defines how often the values on your page will refresh.
+              
+              // pin 1 is urinal
+              // pin 2 is stall
+              
+              var externalURL ="vfR-e76MntZb";
+              var pollRate ="100";
+              
+              function poll(){
+              // Construct an ajax() GET request.
+              // http://www.w3schools.com/jquery/ajax_ajax.asp
+              
+              $.ajax({
+                     type: "get",
+                     url: "https://agent.electricimp.com/"+externalURL,  // URL of our imp agent.
+                     dataType: "json",   // Expect JSON-formatted response from agent.
+                     success: function(agentMsg) {   // Function to run when request succeeds.
+                     
+                     // jQuery find "pin1" id and overwrite its data with "pin1" key value in agentMsg
+                     $("#pin1").html(agentMsg.pin1);
+                     $("#pin2").html(agentMsg.pin2);
+                     $("#pin5").html(agentMsg.pin5);
+                     $("#pin7").html(agentMsg.pin7);
+                     $("#pin8").html(agentMsg.pin8);
+                     $("#pin9").html(agentMsg.pin9);
+                     $("#vin").html(agentMsg.voltage);
+                     
+                     updateBG1(agentMsg.pin2, agentMsg.pin1);    // Try this if you have a photocell connected to pin 1
+                     
+                     },
+                     error: function(err) {
+                     console.log("err"+ err.status)
+                     }
+                     
+                     });
+              }
+              
+              // setInterval is Javascript method to call a function at a specified interval.
+              // http://www.w3schools.com/jsref/met_win_setinterval.asp
+              setInterval(function(){ poll(); }, pollRate);
+              
+              function updateBG1(lightSensor2, lightSensor)
+              {
+              
+              var urinal = "NO";
+              var toilet = "NO";
+              var lightsOff = "NO";
+              
+              if (lightSensor < 42000){
+                  urinal = "YES";
+              }
+              if (lightSensor2 < 30000){
+                  toilet = "YES";
+              }
+              if (lightSensor2 < 7000){
+                  lightsOff = "YES";
+              }
+              
+              if (urinal == "NO" && toilet == "NO"){
+                  document.body.style.backgroundColor = "#458B00"; // green
+              }
+              else if (urinal == "YES" && toilet == "YES"){
+                  document.body.style.backgroundColor = "#FF0000"; // red
+              }
+              
+              
+              
+              
+//              if (lightSensor > 46000 && lightSensor2 > 39000) // both open
+//              {
+//              document.body.style.backgroundColor = "#458B00"; // green
+//              }
+//              
+//              else if (lightSensor < 46000 && lightSensor2 < 39000) // both occupied
+//              {
+//              document.body.style.backgroundColor = "#FF0000"; // red
+//              }
+//              
+//              else if (lightSensor > 46000 && lightSensor2 < 36000) // stall occupied, urinal open
+//              {
+//              document.body.style.backgroundColor = "#7A5230"; // brown
+//              }
+//              
+//              else if (lightSensor < 43000 && lightSensor2 > 39000) // urinal occupied, stall open
+//              {
+//              document.body.style.backgroundColor = "#FFFF00"; // yellow
+//              }
+              
+              else // somehow none of the above conditions were met
+              {
+              document.body.style.backgroundColor = "#FFFFFF"; // white
+              }
+              }
+              }
+              
+              );
+              
+            </script>
+    </head>
+    <body>
+        <h3>Imp Pins:</h3>
+        <div id="pins">
+            <p> <b>Urinal:</b> <span id="pin1"><!-- This is where the pin 1 reading will go --></span></p>
+            <p> <b>Toilet:</b> <span id="pin2"><!-- This is where the pin 2 reading will go --></span></p>
+            </body>
+</html>
